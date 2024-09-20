@@ -62,36 +62,48 @@ const author = () => {
     }
     const handleLogin = async () => {
         if (validateLogin()) {
-            const response = await apiClient.post(
-                `${LOGIN_ROUTE}`, {email, password}, {withCredentials: true})
-            console.log(response)
-            if (response.data) {
-                toast.success("Login successful")
-                console.log(response.data)
-                if (response.data.profileSetup){
-                    nav("/chat")
+            try {
+                const response = await apiClient.post(`${LOGIN_ROUTE}`, { email, password }, { withCredentials: true });
+                toast.success("Login successful");
+                if (response.data.profileSetup) {
+                    nav("/chat");
                 } else {
-                    nav("/profile")
+                    nav("/profile");
+                }
+            } catch (error) {
+                if (error.response) {
+                    const { message } = error.response.data;
+                    if (message === "User not found") {
+                        toast.error("User not found, please check your email");
+                    } else if (message === "Invalid password") {
+                        toast.error("Incorrect password, please try again");
+                    } else {
+                        toast.error("Something went wrong, please try again later");
+                    }
                 }
             }
-            if (response.status === 404) {
-                toast.error("User is not found")
-            }
         }
-
     };
+
     const handleSignup = async () => {
         if (validateSignup()) {
-            const response = await apiClient.post(
-                `${SIGNUP_ROUTE}`, {email, password, firstName, lastName}, {withCredentials: true});
-            console.log(response);
-            if (response.data) {
-                toast.success("Signup successful")
-                console.log(response.data)
-                nav("/profile")
+            try {
+                const response = await apiClient.post(`${SIGNUP_ROUTE}`, { email, password, firstName, lastName }, { withCredentials: true });
+                toast.success("Signup successful");
+                nav("/profile");
+            } catch (error) {
+                if (error.response) {
+                    const { message } = error.response.data;
+                    if (message === "Email is already in use") {
+                        toast.error("This email is already registered, please use another email");
+                    } else {
+                        toast.error("Something went wrong, please try again later");
+                    }
+                }
             }
         }
     };
+
 
     return (
         <>

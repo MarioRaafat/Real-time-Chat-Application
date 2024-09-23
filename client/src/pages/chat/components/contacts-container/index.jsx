@@ -1,10 +1,23 @@
+import ProfileInfo from "@/pages/chat/components/contacts-container/components/profile-info.jsx";
+import NewContact from "@/pages/chat/components/contacts-container/components/new-contact.jsx";
+
 const ContactsContainer = () => {
     return (
-        <div className="w-[30vw] bg-[#1b1c24] relative border-r-2 border-gray-300">
-            <Logo />
-            <div className="flex flex-col gap-2 p-5">
-
+        <div className="w-[30vw] bg-[#1b1c24] relative border-r-[1px] border-gray-300">
+            <Logo/>
+            <div className="flex justify-between gap-2 p-5">
+                <h6 className="text-gray-400 ml-2 hover:text-amber-50 cursor-pointer">Direct Messages</h6>
+                <div className="flex items-center justify-center pr-10">
+                    <NewContact />
+                </div>
             </div>
+            <div className="flex flex-col gap-2 p-5">
+                <h6 className="text-gray-400 ml-2 hover:text-amber-50 cursor-pointer">Channels</h6>
+                <div className="flex items-center justify-center pr-10">
+
+                </div>
+            </div>
+            <ProfileInfo />
         </div>
     );
 };

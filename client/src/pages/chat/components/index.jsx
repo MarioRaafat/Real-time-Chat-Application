@@ -8,9 +8,10 @@ import EmptyChatContainer from "@/pages/chat/components/empty-chat-container/ind
 
 
 const Chat = () => {
-    const {userInfo} = useAppstore();
+    const {userInfo, chatType} = useAppstore();
     const {email, firstName, lastName, profileSetup} = userInfo;
     const navigate = useNavigate();
+
     useEffect(()=>{
         if (!profileSetup){
             toast.error("Please set up your profile first to continue");
@@ -21,8 +22,7 @@ const Chat = () => {
     return (
         <div className="flex h-screen w-screen" >
             <ContactsContainer />
-            <ChatContainer />
-            {/*<EmptyChatContainer />*/}
+            {chatType === undefined ? <EmptyChatContainer /> : <ChatContainer />}
         </div>
     );
 }

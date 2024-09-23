@@ -27,7 +27,12 @@ const Profile = () => {
             setLastName(userInfo.lastName);
         }
         if (userInfo.image) {
-            setImage(`${HOST}/${userInfo.image}`);
+            if (!userInfo.image.startsWith(HOST)) {
+                setImage(`${HOST}/${userInfo.image}`);
+            } else {
+                setImage(userInfo.image);
+            }
+
         }
     }, [userInfo, image]);
 
@@ -48,6 +53,7 @@ const Profile = () => {
             if (response.status === 200) {
                 setUserInfo(response.data.user);
                 navigate("/chat");
+                toast.success("Profile updated successfully");
             }
         } catch (error) {
             console.log("Something went wrong");

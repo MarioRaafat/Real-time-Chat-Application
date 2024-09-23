@@ -2,8 +2,10 @@
 import jwt from "jsonwebtoken";
 import {compare} from "bcrypt"
 import {renameSync, unlinkSync} from "fs";
+import {HOST} from "../index.js";
 
-const createToken = async (email, id) => {
+
+ const createToken = async (email, id) => {
     return jwt.sign({ email, id }, process.env.JWT_KEY, {
         expiresIn: "3d",
     });
@@ -119,15 +121,12 @@ const createToken = async (email, id) => {
      const id = req.userId;
 
      try {
-         console.log(req.body);
-         console.log("hi 1")
         const user = await User.findByIdAndUpdate
         (id,
             {email, firstName, lastName, image, color, profileSetup: true},
             {new: true, runValidators: true}
         );
 
-         console.log("hi 2")
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -142,7 +141,6 @@ const createToken = async (email, id) => {
          }});
 
      } catch (error) {
-         console.log("hi -1")
          res.status(500).json({ message: "Something went wrong" });
      }
  };
@@ -179,7 +177,11 @@ const createToken = async (email, id) => {
                 return res.status(404).json({ message: "User not found" });
             }
             if (user.image) {
-                unlinkSync(user.image);
+                let image = user.image;
+                if (image.startsWith(HOST)) {
+                    image = image.replace(HOST, '');
+                }
+                unlinkSync(image);
             } else {
                 return res.status(404).json({ message: "Image not found" });
             }
@@ -193,4 +195,7 @@ const createToken = async (email, id) => {
         }
     };
 
- export const Logout = async (req, res) => {};
+ export const Logout = async (req, res) => {
+        res.clearCookie("jwt");
+        res.status(200).json({ message: "Logged out" });
+ };

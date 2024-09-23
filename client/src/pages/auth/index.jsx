@@ -8,15 +8,17 @@ import Victory from "../../assets/victory.svg"
 import {apiClient} from "@/lib/api-client.js";
 import {SIGNUP_ROUTE, LOGIN_ROUTE} from "@/utils/constants.js";
 import {useNavigate} from "react-router-dom";
+import {useAppstore} from "@/store/index.js";
 
 const author = () => {
 
-    const nav = useNavigate()
-    const [firstName, setFirstName] = useState("")
-    const [lastName, setLastName] = useState("")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("")
+    const nav = useNavigate();
+    const {setUserInfo} = useAppstore();
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
 
     const validateSignup = () => {
         if (!email.trim() || !password || !confirmPassword || !firstName || !lastName) {
@@ -65,7 +67,8 @@ const author = () => {
             try {
                 const response = await apiClient.post(`${LOGIN_ROUTE}`, { email, password }, { withCredentials: true });
                 toast.success("Login successful");
-                if (response.data.profileSetup) {
+                setUserInfo(response.data.user);
+                if (response.data.user.profileSetup) {
                     nav("/chat");
                 } else {
                     nav("/profile");
@@ -90,6 +93,7 @@ const author = () => {
             try {
                 const response = await apiClient.post(`${SIGNUP_ROUTE}`, { email, password, firstName, lastName }, { withCredentials: true });
                 toast.success("Signup successful");
+                setUserInfo(response.data.user);
                 nav("/profile");
             } catch (error) {
                 if (error.response) {
@@ -116,7 +120,7 @@ const author = () => {
                         </div>
                         <p className="desc w-full flex justify-center items-center">Fill in the details to get started with ChatMe</p>
 
-                        <Tabs defaultValue="Sign up" className="flex justify-center items-center flex-col mt-[15px] w-full">
+                        <Tabs defaultValue="Login" className="flex justify-center items-center flex-col mt-[15px] w-full">
                             <TabsList className="w-3/4 flex justify-between">
 
                                 <TabsTrigger

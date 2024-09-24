@@ -32,7 +32,6 @@ const ProfileInfo = () => {
     return (
         <div className="bg-gray-700 absolute bottom-0 h-14 flex items-center justify-between w-full rounded-t-md p-4">
             <div className="flex items-center gap-4 w-full max-w-[30vw]">
-                {/* Avatar */}
                 <Avatar className="h-10 w-10 rounded-full overflow-hidden">
                     {image ? (
                         <AvatarImage

@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoute from './routes/authRoute.js';
 import contactRoute from './routes/contactRoute.js';
+import MessagesRouter from "./routes/MessagesRoute.js";
+import setupSocket from "./socket.js";
 
 dotenv.config();
 const app = express();
@@ -19,16 +21,21 @@ app.use(cors({
 }));
 
 app.use("/uploads/profiles", express.static("uploads/profiles"));
+app.use("/uploads/files", express.static("uploads/files"));
 app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api/auth", authRoute);
 app.use("/api/contacts", contactRoute);
+app.use("/api/messages", MessagesRouter);
 
 
 const server = app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
+
+
+setupSocket(server);
 
 mongoose.connect(dbURL)
     .then(() => {

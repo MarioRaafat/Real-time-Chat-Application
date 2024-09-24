@@ -1,9 +1,193 @@
-const MessageContainer = () => {
-    return (
-        <div className="h-full">
+import { useAppstore } from "@/store/index.js";
+import { useEffect, useRef, useState } from "react";
+import { apiClient } from "@/lib/api-client.js";
+import { GET_MESSAGES_ROUTE } from "@/utils/constants.js";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { FaFilePdf, FaFileArchive, FaFileAlt, FaArrowDown } from "react-icons/fa";
 
-        </div>
+const MessageContainer = () => {
+    const { userInfo, chatMessages, chatType, chatData, setChatMessages } = useAppstore();
+    const [selectedImg, setSelectedImg] = useState(null);
+    const [showImg, setShowImg] = useState(false);
+    const scrollRef = useRef();
+
+    const formatDate = (date) => {
+        const today = new Date();
+        const diffDays = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) return "Today";
+        if (diffDays === 1) return "Yesterday";
+        return date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+    };
+
+    const formatTime = (date) => {
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const isImageFile = (fileUrl) => {
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'ico'];
+        const fileExtension = fileUrl.split('.').pop().toLowerCase();
+        return imageExtensions.includes(fileExtension);
+    };
+
+    const getFileTypeIcon = (fileUrl) => {
+        const fileExtension = fileUrl.split('.').pop().toLowerCase();
+        if (fileExtension === 'pdf') return <FaFilePdf size={30} className="text-red-500" />;
+        if (fileExtension === 'zip' || fileExtension === 'rar') return <FaFileArchive size={30} className="text-yellow-500" />;
+        return <FaFileAlt size={30} className="text-gray-500" />;
+    };
+
+    const downloadFile = async (fileUrl) => {
+        try {
+            const response = await apiClient.get(fileUrl, { withCredentials: true, responseType: 'blob' });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileUrl.split('/').pop());
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading file:", error);
+        }
+    };
+
+    const renderMessages = () => {
+        let lastDate = null;
+
+        return chatMessages.map((message, index) => {
+            if (!message.time) {
+                console.error("Missing time for message:", message);
+            }
+
+            const messageDate = new Date(message.time);
+
+            if (isNaN(messageDate.getTime())) {
+                console.error("Invalid date for message:", message);
+            }
+
+            const showDate = messageDate.toDateString() !== lastDate;
+            lastDate = messageDate.toDateString();
+
+            const isSender = message.sender === userInfo.id;
+
+            const nextMessage = chatMessages[index + 1];
+            const nextMessageDate = nextMessage && nextMessage.time ? new Date(nextMessage.time) : null;
+            const showTime = !nextMessageDate || (nextMessageDate.getMinutes() !== messageDate.getMinutes() || nextMessageDate.getHours() !== messageDate.getHours());
+
+            return (
+                <div key={index}>
+                    {showDate && (
+                        <div className="text-center text-gray-400 my-2">
+                            <span className="px-4 py-1 rounded-lg text-sm bg-gray-200">
+                                {formatDate(messageDate)}
+                            </span>
+                        </div>
+                    )}
+                    <div className={`flex ${isSender ? "justify-end" : "justify-start"} mb-1`}>
+                        <div className={`p-2 max-w-xs md:max-w-md lg:max-w-lg text-sm ${isSender ? "bg-blue-400" : "bg-gray-300"} rounded-xl shadow-md`}>
+                            {message.messageType === "text" ? (
+                                <p className="whitespace-pre-wrap">{message.text}</p>
+                            ) : (
+                                isImageFile(message.fileUrl) ? (
+                                    <div className="h-[250px] w-[250px] rounded-lg overflow-hidden">
+                                        <img src={message.fileUrl} alt="message content" className="object-cover h-full w-full cursor-pointer" onClick={() => {
+                                            setSelectedImg(message.fileUrl);
+                                            setShowImg(true);
+                                        }} />
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg">
+                                        <div className="flex items-center space-x-3">
+                                            {getFileTypeIcon(message.fileUrl)}
+                                            <div className="relative group">
+                                                <p className="text-sm font-medium text-gray-800 truncate w-[150px]">
+                                                    {message.fileUrl.split('/').pop()}
+                                                </p>
+                                                {/* Tooltip: Only appears when text is truncated */}
+                                                <div className="absolute invisible group-hover:visible bg-gray-700 text-white text-xs rounded py-1 px-2 left-1/2 transform -translate-x-1/2 bottom-full mb-2 w-[130px]">
+                                                    {message.fileUrl.split('/').pop()}
+                                                </div>
+                                                <p className="text-xs text-gray-500">File Attachment</p>
+                                            </div>
+                                        </div>
+                                        <button onClick={() => downloadFile(message.fileUrl)} className="hover:text-white text-blue-500">
+                                            <div className="flex items-center justify-center w-8 h-8 border border-blue-400 rounded-full bg-transparent hover:bg-[#1d4ed8] transition-all duration-300 ease-in-out">
+                                                <FaArrowDown size={16} />
+                                            </div>
+                                        </button>
+                                    </div>
+                                )
+                            )}
+                            {showTime && (
+                                <span className="block text-right text-xs text-gray-600 mt-1">
+                                    {formatTime(messageDate)}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        });
+    };
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [chatMessages]);
+
+    useEffect(() => {
+        const getMessages = async () => {
+            try {
+                const response = await apiClient.post(GET_MESSAGES_ROUTE, { id: chatData._id }, { withCredentials: true });
+                setChatMessages(response.data);
+            } catch (error) {
+                console.error("Error fetching messages:", error);
+            }
+        };
+
+        if (chatType === "contact" && chatData._id) {
+            getMessages();
+        }
+    }, [chatMessages, chatType, chatData, setChatMessages]);
+
+    return (
+        <>
+            <div className="h-full bg-gradient-to-b from-gray-200 to-gray-700 transition-all duration-700 ease-in-out">
+                <div className="flex flex-col h-full">
+                    <ScrollArea className="overflow-hidden w-full h-[80vh] p-5">
+                        <div className="space-y-4">
+                            {renderMessages()}
+                        </div>
+                        <div ref={scrollRef} />
+                    </ScrollArea>
+                </div>
+            </div>
+            {showImg && (
+                <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-90 backdrop-blur-lg z-50 flex items-center justify-center fixed">
+                    <img src={selectedImg} alt="selected image" className="max-h-[80vh] max-w-[60vw] cursor-pointer rounded-lg shadow-lg" onClick={() => setShowImg(false)} />
+
+                    <button
+                        className="absolute top-[30%] right-[10%] w-10 h-10 md:w-16 md:h-16 rounded-full bg-red-500 hover:bg-red-600 transition duration-300 ease-in-out flex items-center justify-center shadow-lg"
+                        onClick={() => setShowImg(false)}
+                        aria-label="Close"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
+                    <button onClick={() => downloadFile(selectedImg)} className="absolute bottom-[30%] right-[10%]">
+                        <div className="flex items-center justify-center w-10 h-10 md:w-16 md:h-16 rounded-full border border-blue-400 bg-transparent hover:bg-[#1d4ed8] transition-all duration-300 ease-in-out">
+                            <FaArrowDown className="text-blue-500 hover:text-white" />
+                        </div>
+                    </button>
+                </div>
+            )}
+        </>
     );
-}
+};
 
 export default MessageContainer;

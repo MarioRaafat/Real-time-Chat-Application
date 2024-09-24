@@ -13,6 +13,14 @@ export const LOGOUT_ROUTE = `${AUTH_ROUTE}/logout`;
 export const CONTACT_ROUTE = "api/contacts";
 
 export const GET_CONTACTS_ROUTE = `${CONTACT_ROUTE}/get-contacts`;
+export const GET_DM_CONTACTS_ROUTE = `${CONTACT_ROUTE}/dm-contacts`;
 export const ADD_CONTACT_ROUTE = `${CONTACT_ROUTE}/add-contact`;
 export const DELETE_CONTACT_ROUTE = `${CONTACT_ROUTE}/delete-contact`;
 export const UPDATE_CONTACT_ROUTE = `${CONTACT_ROUTE}/update-contact`;
+
+
+
+export const MESSAGES_ROUTE = "api/messages";
+
+export const GET_MESSAGES_ROUTE = `${MESSAGES_ROUTE}/get-messages`;
+export const GET_UPLOAD_FILE_ROUTE = `${MESSAGES_ROUTE}/upload-file`;

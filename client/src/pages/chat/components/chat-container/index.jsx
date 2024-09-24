@@ -4,7 +4,7 @@ import MessageBar from "@/pages/chat/components/chat-container/components/messag
 
 const ChatContainer = () => {
     return (
-        <div className=" flex flex-col w-full bg-[#131313] h-[100vh]">
+        <div className=" flex flex-col w-full bg-[#131313] h-screen">
             <ChatHeader />
             <MessageContainer />
             <MessageBar />

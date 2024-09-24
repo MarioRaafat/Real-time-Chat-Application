@@ -7,7 +7,7 @@ const ChatHeader = () => {
     const {closeChat, chatData, userInfo} = useAppstore();
     const {color} = userInfo;
     const {image, lastName, firstName} = chatData;
-    console.log(chatData);
+
 
     return <div className="relative h-[12%] border-b-[1px] w-full border-amber-50 flex items-center justify-center bg-gray-800">
             <div className="flex gap-3 items-center w-[50%] absolute left-8">

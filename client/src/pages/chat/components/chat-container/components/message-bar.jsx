@@ -3,31 +3,82 @@ import { IoMdSend } from 'react-icons/io';
 import { AiOutlinePaperClip } from 'react-icons/ai';
 import { RiEmojiStickerLine } from 'react-icons/ri';
 import EmojiPicker from 'emoji-picker-react';
+import {useAppstore} from "@/store/index.js";
+import { useSocket } from "@/context/SocketContext.jsx";
+import {GET_UPLOAD_FILE_ROUTE, HOST} from "@/utils/constants.js";
+import {apiClient} from "@/lib/api-client.js";
 
 const MessageBar = () => {
     const [message, setMessage] = useState('');
     const [attachment, setAttachment] = useState(null);
     const [emojiOpened, setEmojiOpened] = useState(false);
     const emojiPickerRef = useRef(null);
+    const fileRef = useRef(null);
+    const socket = useSocket();
+    const { chatType, chatData, userInfo} = useAppstore();
 
-    // Handle sending the message
     const handleSend = () => {
         if (message.trim() || attachment) {
-            console.log('Message sent:', message);
+            console.log('Message sent:', message.trim());
             if (attachment) {
-                console.log('Attachment sent:', attachment.name);
+                console.log('Attachment sent:', attachment);
+            } else {
+                if (chatType === "contact") {
+                    socket.emit("send-message", {
+                        sender: userInfo.id,
+                        receiver: chatData._id,
+                        text: message.trim(),
+                        messageType: attachment ? "file" : "text",
+                        fileUrl: attachment,
+                    });
+                }
             }
+
             setMessage('');
             setAttachment(null);
         }
     };
 
+
+    const handleAttachmentClick = () => {
+        if (fileRef.current) {
+            fileRef.current.click();
+        }
+    }
+
     // Handle file attachment
-    const handleAttachment = (event) => {
+    const handleAttachmentChange = async  (event) => {
         const file = event.target.files[0];
-        if (file) {
-            setAttachment(file);
+        if (!file) {
+            console.error('No file selected');
+        } else {
             console.log('File selected:', file.name);
+        }
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await apiClient.post(GET_UPLOAD_FILE_ROUTE, formData, {withCredentials: true});
+            setAttachment(response.data.file);
+            console.log("hi 1");
+            if (response.data.file && response.status === 200) {
+                console.log('File uploaded:', response.data.file);
+
+                if (chatType === "contact") {
+                    console.log("hi 2")
+                    socket.emit("send-message", {
+                        sender: userInfo.id,
+                        receiver: chatData._id,
+                        text: null,
+                        messageType: "file",
+                        fileUrl: response.data.file,
+                    });
+
+                    setMessage('');
+                    setAttachment(null);
+                }
+            }
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -55,14 +106,15 @@ const MessageBar = () => {
     return (
         <div className="w-full flex items-center p-4 bg-gray-800 h-[10vh] relative">
             {/* Attachment Button */}
-            <label className="text-gray-400 hover:text-gray-200 mx-2 cursor-pointer">
+            <button className="text-gray-400 hover:text-gray-200 mx-2 cursor-pointer" onClick={handleAttachmentClick}>
                 <AiOutlinePaperClip size={24} />
                 <input
                     type="file"
                     className="hidden"
-                    onChange={handleAttachment}
+                    onChange={handleAttachmentChange}
+                    ref={fileRef}
                 />
-            </label>
+            </button>
 
             {/* Input and Emoji Button */}
             <div className="flex w-full rounded-full bg-gray-700 relative">

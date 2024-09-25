@@ -15,11 +15,27 @@ const port = process.env.PORT || 5000;
 export const HOST = process.env.HOST;
 const dbURL = process.env.DATABASE_URL;
 
-app.use(cors({
-    origin: process.env.ORIGIN,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-}));
+
+// List of allowed origins
+const allowedOrigins = [
+  process.env.ORIGIN_DEV,  // for local development
+  process.env.ORIGIN_PROD  // for production on Vercel
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Check if the origin is in the list of allowedOrigins or is undefined (for server-to-server requests)
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+        callback(null, true);
+        } else {
+        callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true, // if you want to allow cookies or authentication headers
+};
+
+app.use(cors(corsOptions));
+
 
 app.use("/uploads/profiles", express.static("uploads/profiles"));
 app.use("/uploads/files", express.static("uploads/files"));

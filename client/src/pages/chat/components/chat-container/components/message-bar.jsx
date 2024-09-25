@@ -20,6 +20,7 @@ const MessageBar = () => {
     const handleSend = () => {
         if (message.trim() || attachment) {
             console.log('Message sent:', message.trim());
+            console.log(chatData);
             if (attachment) {
                 console.log('Attachment sent:', attachment);
             } else {
@@ -27,6 +28,17 @@ const MessageBar = () => {
                     socket.emit("send-message", {
                         sender: userInfo.id,
                         receiver: chatData._id,
+                        text: message.trim(),
+                        messageType: attachment ? "file" : "text",
+                        fileUrl: attachment,
+                    });
+                }
+                if (chatType === "group") {
+                    
+                    socket.emit("send-group-message", {
+                        sender: userInfo.id,
+                        receiver: chatData.id,
+                        members: chatData.members,
                         text: message.trim(),
                         messageType: attachment ? "file" : "text",
                         fileUrl: attachment,

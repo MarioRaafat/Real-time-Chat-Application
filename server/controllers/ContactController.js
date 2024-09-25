@@ -69,13 +69,14 @@ export const getDMContacts = async (req, res) => {
             {
                 $group: {
                     _id: {
-                            $cond: {
-                                if: { $eq: ['$sender', userId] },
-                                then: '$receiver',
-                                else: '$sender',
-                            },
+                        $cond: {
+                            if: { $eq: ['$sender', userId] },
+                            then: '$receiver',
+                            else: '$sender',
                         },
-                    lastMessageTime: { $first: '$time' },
+                    },
+                    lastMessageTime: { $max: '$time' }, // Get the latest message time
+                    lastMessage: { $last: '$message' }, // Get the last message content
                 },
             },
             {
@@ -92,25 +93,28 @@ export const getDMContacts = async (req, res) => {
             {
                 $project: {
                     _id: 1,
-                    lastMessage: 1,
+                    lastMessage: 1, // Include lastMessage for response
                     firstName: '$contactInfo.firstName',
                     lastName: '$contactInfo.lastName',
                     email: '$contactInfo.email',
                     color: '$contactInfo.color',
-                    profileImg: '$contactInfo.profileImg'
+                    profileImg: '$contactInfo.profileImg',
+                    lastMessageTime: 1 // Include lastMessageTime for sorting
                 }
             },
             {
-                $sort: { lastMessageTime: -1 }
+                $sort: { lastMessageTime: -1 } // Sort by lastMessageTime
             }
-        ])
+        ]);
 
         res.status(200).json(contacts);
 
     } catch (error) {
-        res.status(500).json({message: 'something went wrong'});
+        res.status(500).json({ message: 'something went wrong' });
     }
 }
+
+
 
 
 export const updateContact = async (req, res) => {

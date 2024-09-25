@@ -6,6 +6,7 @@ import cors from 'cors';
 import authRoute from './routes/authRoute.js';
 import contactRoute from './routes/contactRoute.js';
 import MessagesRouter from "./routes/MessagesRoute.js";
+import GroupsRouter from "./routes/GroupRoute.js";
 import setupSocket from "./socket.js";
 
 dotenv.config();
@@ -28,6 +29,7 @@ app.use(express.json());
 app.use("/api/auth", authRoute);
 app.use("/api/contacts", contactRoute);
 app.use("/api/messages", MessagesRouter);
+app.use("/api/groups", GroupsRouter);
 
 
 const server = app.listen(port, () => {

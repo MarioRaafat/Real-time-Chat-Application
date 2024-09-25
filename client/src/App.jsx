@@ -53,6 +53,7 @@ function App() {
 
   return (
     <BrowserRouter>
+    <div className="h-screen w-screen overflow-hidden">
         <Routes>
             <Route path="/author" element={
                 <AuthRoute>
@@ -72,6 +73,7 @@ function App() {
 
             <Route path="*" element={<Navigate to={"/author" } />} />
         </Routes>
+        </div>
     </BrowserRouter>
   )
 }

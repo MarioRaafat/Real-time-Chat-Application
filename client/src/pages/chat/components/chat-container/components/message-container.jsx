@@ -1,7 +1,7 @@
 import { useAppstore } from "@/store/index.js";
 import { useEffect, useRef, useState } from "react";
 import { apiClient } from "@/lib/api-client.js";
-import { GET_MESSAGES_ROUTE } from "@/utils/constants.js";
+import { GET_MESSAGES_ROUTE, GET_GROUP_MESSAGES_ROUTE } from "@/utils/constants.js";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FaFilePdf, FaFileArchive, FaFileAlt, FaArrowDown } from "react-icons/fa";
 
@@ -91,7 +91,7 @@ const MessageContainer = () => {
                                 <p className="whitespace-pre-wrap">{message.text}</p>
                             ) : (
                                 isImageFile(message.fileUrl) ? (
-                                    <div className="h-[250px] w-[250px] rounded-lg overflow-hidden">
+                                    <div className="h-[150px] w-[150px]  md:h-[200px] md:hw-[200px] lg:h-[250px] lg:w-[250px] rounded-lg overflow-hidden">
                                         <img src={message.fileUrl} alt="message content" className="object-cover h-full w-full cursor-pointer" onClick={() => {
                                             setSelectedImg(message.fileUrl);
                                             setShowImg(true);
@@ -141,16 +141,14 @@ const MessageContainer = () => {
     useEffect(() => {
         const getMessages = async () => {
             try {
-                const response = await apiClient.post(GET_MESSAGES_ROUTE, { id: chatData._id }, { withCredentials: true });
+                const ROUTE = chatType === "contact" ? GET_MESSAGES_ROUTE : GET_GROUP_MESSAGES_ROUTE;
+                const response = await apiClient.post(ROUTE, { id: chatData._id }, { withCredentials: true });
                 setChatMessages(response.data);
             } catch (error) {
                 console.error("Error fetching messages:", error);
             }
         };
-
-        if (chatType === "contact" && chatData._id) {
             getMessages();
-        }
     }, [chatMessages, chatType, chatData, setChatMessages]);
 
     return (
@@ -166,7 +164,7 @@ const MessageContainer = () => {
                 </div>
             </div>
             {showImg && (
-                <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-90 backdrop-blur-lg z-50 flex items-center justify-center fixed">
+                <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-90 backdrop-blur-lg z-50 flex items-center justify-center">
                     <img src={selectedImg} alt="selected image" className="max-h-[80vh] max-w-[60vw] cursor-pointer rounded-lg shadow-lg" onClick={() => setShowImg(false)} />
 
                     <button

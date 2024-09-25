@@ -1,40 +1,40 @@
 import {apiClient} from "@/lib/api-client.js";
-import {GET_DM_CONTACTS_ROUTE} from "@/utils/constants.js";
+import {GET_GROUPS_ROUTE} from "@/utils/constants.js";
 import {useEffect} from "react";
 import {useAppstore} from "@/store/index.js";
 import {Avatar, AvatarImage} from "@/components/ui/avatar.jsx";
-import {getColor} from "@/lib/utils.js";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-const DM = () => {
-    const {chatData, setChatData, setChatType, setChatMessages, DMContacts, setDMContacts} = useAppstore();
+const Groups = () => {
+    const {chatData, setChatData, setChatType, setChatMessages, chatGroups, setChatGroups} = useAppstore();
 
     useEffect(() => {
-        const getContacts = async () => {
+        const getGroups = async () => {
             try {
-                const response = await apiClient.get(GET_DM_CONTACTS_ROUTE, {withCredentials: true});
-                setDMContacts(response.data);
+                const response = await apiClient.get(GET_GROUPS_ROUTE, {withCredentials: true});
+                setChatGroups(response.data);
             } catch (error) {
                 console.log(error);
             }
         }
-        getContacts();
-    }, [DMContacts, setDMContacts]);
+        getGroups();
+    }, [chatGroups, setChatGroups]);
 
-    const handleClick = (contact) => {
-        setChatType("contact");
-        setChatData(contact);
-        if (chatData && chatData._id !== contact.id) {
+    const handleClick = (group) => {
+        setChatType("group");
+        setChatData(group);
+        if (chatData && chatData._id !== group.id) {
             setChatMessages([]);
         }
     };
 
-    const renderContacts = () => {
-        return DMContacts.map((contact, index) => {
-            const {firstName, lastName, email, image, color} = contact;
+    const renderGroups = () => {
+        return chatGroups.map((group, index) => {
+            const {name, image} = group;
 
             return (
                 <div key={index}
-                    onClick={() => handleClick(contact)}
+                    onClick={() => handleClick(group)}
                     className="flex items-center gap-2 p-2 w-full hover:bg-gray-800 cursor-pointer transition-colors duration-300 ease-in-out">
                     <div className="flex items-center gap-4 w-full pl-6">
                         <Avatar className="h-10 w-10 rounded-full overflow-hidden">
@@ -46,21 +46,14 @@ const DM = () => {
                                 />
                             ) : (
                                 <div
-                                    className={`font-bold text-l uppercase h-10 w-10 rounded-full flex items-center justify-center ${getColor(color)}`}>
-                                    {firstName[0]}
+                                    className={`font-bold text-l uppercase h-10 w-10 rounded-full flex items-center justify-center bg-gray-400`}>
+                                    {name[0]}
                                 </div>
                             )}
                         </Avatar>
-
-                        {/* Name and Email - responsive display */}
                         <div className="flex flex-col w-full max-w-[60%] md:max-w-[70%] lg:max-w-[80%] pr-6">
                             <p className="text-white text-sm block truncate">
-                                {firstName} {lastName}
-                            </p>
-
-                            {/* Email visible only on large screens */}
-                            <p className="text-white text-xs hidden lg:block truncate">
-                                {email}
+                                {name}
                             </p>
                         </div>
                     </div>
@@ -71,9 +64,9 @@ const DM = () => {
 
     return (
         <div className="w-full">
-            {renderContacts()}
+            {renderGroups()}
         </div>
     );
 }
 
-export default DM;
+export default Groups;

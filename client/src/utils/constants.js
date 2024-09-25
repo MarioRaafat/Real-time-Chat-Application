@@ -24,3 +24,10 @@ export const MESSAGES_ROUTE = "api/messages";
 
 export const GET_MESSAGES_ROUTE = `${MESSAGES_ROUTE}/get-messages`;
 export const GET_UPLOAD_FILE_ROUTE = `${MESSAGES_ROUTE}/upload-file`;
+
+
+export const GROUPS_ROUTE = "api/groups";
+
+export const GET_GROUPS_ROUTE = `${GROUPS_ROUTE}/get-groups`;
+export const GET_GROUP_MESSAGES_ROUTE = `${GROUPS_ROUTE}/get-group-messages`;
+export const CREATE_GROUP_ROUTE = `${GROUPS_ROUTE}/create-group`;

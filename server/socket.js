@@ -37,9 +37,53 @@ const sendMessage = async  (message) => {
     }
 };
 
-const receiveMessage = async (message) => {
 
-}
+const sendGroupMessage = async  (message) => {
+    const { sender, receiver, text, messageType, fileUrl, members} = message;
+    const senderSocketId = userSocketMap.get(sender);
+
+    console.log("Members: ", members);
+
+    const formattedMessage = {
+        sender: sender,
+        receiver: receiver,
+        text: text,
+        fileUrl: fileUrl,
+        messageType: messageType,
+    };
+
+    try {
+        const newMessage = await Messages.create(formattedMessage)
+            .catch(err => console.error("Error saving message: ", err));
+
+        if (senderSocketId) {
+            io.to(senderSocketId).emit("receive-message", newMessage);
+            console.log(`Message sent from ${sender} to ${receiver}`);
+        } else {
+            console.log(`Receiver ${receiver} is not connected`);
+        }
+
+        if (receiver) {
+            for (const member of members) {
+                const memberSocketId = userSocketMap.get(member);
+                if (memberSocketId) {
+                    io.to(memberSocketId).emit("receive-message", newMessage);
+                } else {
+                    console.log(`Receiver ${member} is not connected`);
+                }
+            }
+        } else {
+            console.log(`Sender ${sender} is not connected`);
+        }
+
+
+        const messageData = await Messages.findById(newMessage._id)
+            .populate("sender", "id email firstName lastName image color")
+            .populate("receiver", "id email firstName lastName image color");
+    } catch (error) {
+        console.log(error);
+    }
+};
 
 const disconnect = (socket) => {
     console.log("Socket disconnected: ", socket.id);
@@ -76,6 +120,7 @@ const setupSocket = (server) => {
         }
 
         socket.on("send-message", sendMessage);
+        socket.on("send-group-message", sendGroupMessage);
         socket.on("disconnect", () => disconnect(socket));
     });
 

@@ -2,7 +2,6 @@
 import jwt from "jsonwebtoken";
 import {compare} from "bcrypt"
 import {renameSync, unlinkSync} from "fs";
-import {HOST} from "../index.js";
 
 
  const createToken = async (email, id) => {
@@ -178,9 +177,6 @@ import {HOST} from "../index.js";
             }
             if (user.image) {
                 let image = user.image;
-                if (image.startsWith(HOST)) {
-                    image = image.replace(HOST, '');
-                }
                 unlinkSync(image);
             } else {
                 return res.status(404).json({ message: "Image not found" });

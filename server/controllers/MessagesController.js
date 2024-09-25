@@ -38,7 +38,7 @@ export const uploadFile = async (req, res) => {
         mkdirSync(dir, {recursive: true});
         const fileName = `${dir}/${req.file.originalname}`;
         renameSync(req.file.path, fileName);
-        res.status(200).json({file: `${process.env.HOST}${fileName}`});
+        res.status(200).json({file: `${fileName}`});
 
     } catch (error) {
         console.log(error);

@@ -12,7 +12,6 @@ import setupSocket from "./socket.js";
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
-export const HOST = process.env.HOST;
 const dbURL = process.env.DATABASE_URL;
 
 

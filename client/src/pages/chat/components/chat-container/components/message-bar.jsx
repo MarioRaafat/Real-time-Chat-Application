@@ -71,7 +71,6 @@ const MessageBar = () => {
             formData.append('file', file);
             const response = await apiClient.post(GET_UPLOAD_FILE_ROUTE, formData, {withCredentials: true});
             setAttachment(response.data.file);
-            console.log("hi 1");
             if (response.data.file && response.status === 200) {
                 console.log('File uploaded:', response.data.file);
 
@@ -82,7 +81,7 @@ const MessageBar = () => {
                         receiver: chatData._id,
                         text: null,
                         messageType: "file",
-                        fileUrl: response.data.file,
+                        fileUrl: `${HOST}/${response.data.file}`,
                     });
 
                     setMessage('');

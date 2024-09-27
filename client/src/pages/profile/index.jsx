@@ -52,6 +52,7 @@ const Profile = () => {
             const response = await apiClient.post(UPDATE_USER_INFO, data, { withCredentials: true });
             if (response.status === 200) {
                 setUserInfo(response.data.user);
+                // console.log(response.data.user);
                 navigate("/chat");
                 toast.success("Profile updated successfully");
             }

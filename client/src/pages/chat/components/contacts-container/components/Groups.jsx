@@ -18,7 +18,7 @@ const Groups = () => {
             }
         }
         getGroups();
-    }, [chatGroups, setChatGroups]);
+    }, [chatGroups, setChatGroups, chatData]);
 
     const handleClick = (group) => {
         setChatType("group");

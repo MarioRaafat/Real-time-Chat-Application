@@ -98,7 +98,7 @@ export const getDMContacts = async (req, res) => {
                     lastName: '$contactInfo.lastName',
                     email: '$contactInfo.email',
                     color: '$contactInfo.color',
-                    profileImg: '$contactInfo.profileImg',
+                    image: '$contactInfo.image',
                     lastMessageTime: 1 // Include lastMessageTime for sorting
                 }
             },

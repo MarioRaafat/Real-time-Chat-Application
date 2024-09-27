@@ -11,6 +11,8 @@ const sendMessage = async  (message) => {
     const receiverSocketId = userSocketMap.get(receiver);
     const senderSocketId = userSocketMap.get(sender);
 
+    console.log("hi");
+
     try {
         const newMessage = await Messages.create(message)
             .catch(err => console.error("Error saving message: ", err));
@@ -73,7 +75,7 @@ const sendGroupMessage = async  (message) => {
                 }
             }
         } else {
-            console.log(`Sender ${sender} is not connected`);
+            console.log(`Error sending message to group ${receiver}`);
         }
 
 
@@ -98,14 +100,16 @@ const disconnect = (socket) => {
 }
 
 
-const setupSocket = (server) => {
+const setupSocket = (server, origin) => {
+    
     io = new SocketServer(server, {
         cors: {
-            origin: process.env.ORIGIN,
+            origin: origin,
             methods: ["GET", "POST"],
             credentials: true,
         }
     });
+    
 
     io.on("connection", (socket) => {
         console.log("New connection: ", socket.id);

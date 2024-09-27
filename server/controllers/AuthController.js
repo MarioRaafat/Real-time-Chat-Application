@@ -191,7 +191,11 @@ import {renameSync, unlinkSync} from "fs";
         }
     };
 
- export const Logout = async (req, res) => {
-        res.clearCookie("jwt");
-        res.status(200).json({ message: "Logged out" });
- };
+export const Logout = async (req, res) => {
+    res.clearCookie("jwt", {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None'
+    });
+    res.status(200).json({ message: "Logged out" });
+};    

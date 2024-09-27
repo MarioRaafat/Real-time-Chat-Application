@@ -27,12 +27,7 @@ const Profile = () => {
             setLastName(userInfo.lastName);
         }
         if (userInfo.image) {
-            if (!userInfo.image.startsWith(HOST)) {
-                setImage(`${HOST}/${userInfo.image}`);
-            } else {
-                setImage(userInfo.image);
-            }
-
+            userInfo.image.startsWith(`${HOST}/`) ? userInfo.image.replace(HOST, "") : userInfo.image;
         }
     }, [userInfo, image]);
 

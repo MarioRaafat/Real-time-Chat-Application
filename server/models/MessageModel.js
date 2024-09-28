@@ -28,6 +28,16 @@ const messageSchema = new mongoose.Schema({
             return this.messageType === "file";
         },
     },
+    edited:{
+        type: Boolean,
+        default: false,
+        required: false,
+    },
+    deleted: {
+        type: Boolean,
+        default: false,
+        required: false,
+    },
     time: {
         type: String,
         default: () => new Date().toISOString(),

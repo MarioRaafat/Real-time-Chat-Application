@@ -45,3 +45,43 @@ export const uploadFile = async (req, res) => {
         res.status(500).json({message: "Server error"});
     }
 }
+
+export const editMessage = async (req, res) =>{
+    try {
+        const messagesID = req.body.messageID;
+        const messageText = req.body.text
+        console.log(messageText);
+        console.log(messagesID);
+
+        const updatedMessage = await Messages.findByIdAndUpdate(
+            messagesID,
+            { text: messageText, edited: true },
+            {new: true, runValidators: true}
+        );
+
+        res.status(200).json(updatedMessage);
+
+    } catch (error) {
+        res.status(500).json({message: "Server error"});
+    }
+}
+
+export const deleteMessages = async (req, res) =>{
+    try {
+        const messagesIDs = req.body.messages.map(message => message._id);
+
+        await Messages.updateMany(
+            { _id: { $in: messagesIDs } },
+            { $set: { deleted: true } }
+        );
+
+        const updatedMessages = await Messages.find(
+            { _id: { $in: messagesIDs } }
+        ).sort({ time: 1 });
+
+        res.status(200).json(updatedMessages);
+
+    } catch (error) {
+        res.status(500).json({message: "Server error"});
+    }
+}

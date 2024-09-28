@@ -24,6 +24,8 @@ export const MESSAGES_ROUTE = "api/messages";
 
 export const GET_MESSAGES_ROUTE = `${MESSAGES_ROUTE}/get-messages`;
 export const GET_UPLOAD_FILE_ROUTE = `${MESSAGES_ROUTE}/upload-file`;
+export const EDIT_MESSAGE_ROUTE = `${MESSAGES_ROUTE}/edit-message`;
+export const DELETE_MESSAGES_ROUTE = `${MESSAGES_ROUTE}/delete-messages`;
 
 
 export const GROUPS_ROUTE = "api/groups";

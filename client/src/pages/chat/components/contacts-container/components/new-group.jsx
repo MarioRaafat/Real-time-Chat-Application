@@ -172,6 +172,9 @@ const NewGroup = () => {
                             }
                         }}
                     />
+                    <div className="sm:p-4" >
+                        Please enter at least 3 characters to search
+                    </div>
 
                     <ScrollArea className="h-[90%] overflow-auto mt-2 max-h-[100px]">
                         <div className="flex flex-wrap gap-2">

@@ -9,6 +9,7 @@ import {animationDefault} from "@/lib/utils.js";
 import {apiClient} from "@/lib/api-client.js";
 import {GET_CONTACTS_ROUTE} from "@/utils/constants.js";
 import {useAppstore} from "@/store/index.js";
+import { toast } from "sonner";
 
 const NewContact = () => {
     const {chatType, chatMessages, chatData, setChatType, setChatMessages, setChatData} = useAppstore();
@@ -17,18 +18,25 @@ const NewContact = () => {
 
     //["Mario", "hi", "aa", "ss", "aaa", "asgu", "Mario", "hi", "aa", "ss", "aaa", "asgu"]
     const handleSearch = async (value) => {
-        try {
-            if (value){
-                const response = await apiClient.post(GET_CONTACTS_ROUTE, { searchTerm: value }, { withCredentials: true });
-                const data = await response.data;
-                if (response.status === 200) {
-                    setContacts(data);
-                } else {
-                    console.log(data.message);
+        if (!value) {
+            setContacts([]);
+            return;
+        }
+
+        if (value.length > 2) {
+            try {
+                if (value){
+                    const response = await apiClient.post(GET_CONTACTS_ROUTE, { searchTerm: value }, { withCredentials: true });
+                    const data = await response.data;
+                    if (response.status === 200) {
+                        setContacts(data);
+                    } else {
+                        console.log(data.message);
+                    }
                 }
+            } catch (error) {
+                console.log(error);
             }
-        } catch (error) {
-            console.log(error);
         }
     };
 
@@ -63,7 +71,15 @@ const NewContact = () => {
                             className="w-full p-2 sm:p-4 bg-slate-900 text-amber-50 border-none outline-none"
                             type="text"
                             onChange={(e) => handleSearch(e.target.value)}
+                            onKeyDown= {(event) => {
+                                if (event.key === 'Enter') {
+                                    toast.error("Please type at least 3 characters to search");
+                                }
+                            }}
                         />
+                        <div className="sm:px-4 opacity-55">
+                            Please enter at least 3 characters to search
+                        </div>
                     </div>
                     <ScrollArea className=" h-[90%]  w-full overflow-auto">
                         {contacts.length > 0 ? (

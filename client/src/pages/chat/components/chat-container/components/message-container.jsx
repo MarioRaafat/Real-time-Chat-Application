@@ -42,6 +42,7 @@ const MessageContainer = () => {
             if (event.key === 'Enter') {
                 if (msgEdited.length > 0) {
                     handleEditMessages(msgEdited);
+                    toast.success("Message edited successfully");
                 } else {
                     toast.error("Message can not be empty") 
                 }
@@ -115,16 +116,20 @@ const MessageContainer = () => {
         }
     };
 
-const handleSelectMessage = (message) => {
-    setSelectedMessages((prevSelectedMessages) => {
-        const isSelected = prevSelectedMessages.find((m) => m._id === message._id);
+const handleSelectMessage = (message, isSender) => {
+    if (isSender){
+        setSelectedMessages((prevSelectedMessages) => {
+            const isSelected = prevSelectedMessages.find((m) => m._id === message._id);
 
-        if (isSelected) {
-            return prevSelectedMessages.filter((m) => m._id !== message._id);
-        } else {
-            return [...prevSelectedMessages, message];
-        }
-    });
+            if (isSelected) {
+                return prevSelectedMessages.filter((m) => m._id !== message._id);
+            } else {
+                return [...prevSelectedMessages, message];
+            }
+        });
+    } else {
+        toast.error("You can only select your own messages");
+    }
 };
 
 const handleDeleteMessages = async () => {
@@ -132,6 +137,7 @@ const handleDeleteMessages = async () => {
         const response = await apiClient.post(DELETE_MESSAGES_ROUTE, { messages: selectedMessages }, { withCredentials: true });
         if (response.status === 200) {
             setSelectedMessages([]);
+            toast.success("Messages deleted successfully");
         }
     } catch (error) {
         console.error("Error deleting messages:", error);
@@ -198,7 +204,7 @@ const handleEditClick = (message) => {
                     )}
                     <div
                         className={`flex ${isSender ? "justify-end" : "justify-start"} mb-1 relative ${isSelected ? "bg-purple-200 rounded-xl shadow-md" : ""}`}
-                        onClick={() => handleSelectMessage(message)}
+                        onClick={() => handleSelectMessage(message, isSender)}
                     >
                         <div className={`p-2 max-w-xs md:max-w-md lg:max-w-lg text-sm ${isSender ? "bg-blue-400" : "bg-gray-300"} rounded-xl shadow-md ${isSelected ? "border border-blue-500" : ""}`}>
                             { isDeleted ?
@@ -251,17 +257,19 @@ const handleEditClick = (message) => {
                                 isSender ? "left-4" : "right-4"
                                 }`}
                             >
-                                {!multipleSelected && message.messageType === "text" && (
+                                {!multipleSelected && message.messageType === "text" && isSender &&
                                 <button
                                     className="text-gray-600 hover:text-gray-800"
                                     onClick={() => handleEditClick(message)}
                                 >
                                     <FiEdit2 size={18} />
                                 </button>
-                                )}
-                                <button className="text-red-600 hover:text-red-800" onClick={handleDeleteMessages}>
-                                <FaTrash size={18} />
-                                </button>
+                                }
+                                { !isDeleted && isSender &&
+                                    <button className="text-red-600 hover:text-red-800" onClick={handleDeleteMessages}>
+                                        <FaTrash size={18} />
+                                    </button>
+                                }
                             </div>
                             )}
                     </div>

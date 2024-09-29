@@ -208,8 +208,11 @@ const handleEditClick = (message) => {
                                     <p className="whitespace-pre-wrap">{message.text}</p>
                                 ) : (
                                     isImageFile(message.fileUrl) ? (
-                                        <div className="h-[150px] w-[150px] md:h-[200px] md:hw-[200px] lg:h-[250px] lg:w-[250px] rounded-lg overflow-hidden">
-                                            <img src={message.fileUrl} alt="message content" className="object-cover h-full w-full cursor-pointer" />
+                                        <div className="h-[150px] w-[150px] md:h-[200px] md:hw-[200px] lg:h-[250px] lg:w-[250px] rounded-lg overflow-hidden" onClick={()=>{
+                                                setShowImg(true)
+                                                setSelectedImg(message.fileUrl)
+                                                }}>
+                                            <img src={message.fileUrl} alt="message content" className="object-cover h-full w-full cursor-pointer"/>
                                         </div>
                                     ) : (
                                         <div className="flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg">
@@ -219,8 +222,18 @@ const handleEditClick = (message) => {
                                                     <p className="text-sm font-medium text-gray-800 truncate w-[150px]">
                                                         {message.fileUrl.split('/').pop()}
                                                     </p>
+                                                    {/* Tooltip: Only appears when text is truncated */}
+                                                    <div className="absolute invisible group-hover:visible bg-gray-700 text-white text-xs rounded py-1 px-2 left-1/2 transform -translate-x-1/2 bottom-full mb-2">
+                                                        {message.fileUrl.split('/').pop()}
+                                                    </div>
+                                                    <p className="text-xs text-gray-500">File Attachment</p>
                                                 </div>
                                             </div>
+                                            <a href={message.fileUrl} download className="text-blue-500 hover:text-blue-700">
+                                                <div className="flex items-center justify-center w-8 h-8 border border-blue-400 rounded-full bg-transparent hover:bg-blue-300 transition-all duration-300 ease-in-out">
+                                                    <FaArrowDown size={16} />
+                                                </div>
+                                            </a>
                                         </div>
                                     )
                                 )}

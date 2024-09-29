@@ -3,6 +3,11 @@ import { FaUserPlus, FaTrash } from "react-icons/fa";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api-client.js";
 import { HOST, UPDATE_USER_INFO, ADD_PROFILE_IMG, DELETE_PROFILE_IMG } from "@/utils/constants.js";
+import { useAppstore } from "@/store/index.js";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input.jsx";
 
 const Profile = () => {
     const navigate = useNavigate();

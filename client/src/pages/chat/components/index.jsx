@@ -1,6 +1,6 @@
 import {useNavigate} from "react-router-dom";
 import {useAppstore} from "@/store/index.js";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {toast} from "sonner";
 import ChatContainer from "@/pages/chat/components/chat-container/index.jsx";
 import ContactsContainer  from "@/pages/chat/components/contacts-container/index.jsx";
@@ -10,6 +10,7 @@ import EmptyChatContainer from "@/pages/chat/components/empty-chat-container/ind
 const Chat = () => {
     const {userInfo, chatType} = useAppstore();
     const {email, firstName, lastName, profileSetup} = userInfo;
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const navigate = useNavigate();
 
     useEffect(()=>{
@@ -21,8 +22,11 @@ const Chat = () => {
 
     return (
         <div className="flex h-screen w-screen" >
-            <ContactsContainer />
-            {chatType === undefined ? <EmptyChatContainer /> : <ChatContainer />}
+            <ContactsContainer isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}/>
+            {chatType === undefined ? 
+                <EmptyChatContainer isSidebarOpen={isSidebarOpen}/>
+                :
+                <ChatContainer />}
         </div>
     );
 }

@@ -23,6 +23,7 @@ const DM = () => {
     const handleClick = (contact) => {
         setChatType("contact");
         setChatData(contact);
+        console.log(contact);
         if (chatData && chatData._id !== contact.id) {
             setChatMessages([]);
         }

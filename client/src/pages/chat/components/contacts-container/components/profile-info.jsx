@@ -8,11 +8,22 @@ import { FiEdit2 } from "react-icons/fi";
 import { LogOutIcon } from "lucide-react";
 import {LOGOUT_ROUTE} from "@/utils/constants.js";
 import {toast} from "sonner";
+import { useEffect, useState } from "react";
 
-const ProfileInfo = () => {
+const ProfileInfo = ({ isSidebarOpen }) => {
     const navigate = useNavigate();
     const { userInfo, setUserInfo } = useAppstore();
     const { email, firstName, lastName, image, color } = userInfo;
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const Logout = async  () => {
         try {
@@ -48,9 +59,9 @@ const ProfileInfo = () => {
                 </Avatar>
 
                 {/* Name and Email - responsive display */}
-                <div className="flex flex-col max-w-[30%] md:max-w-[50%] lg:max-w-[60%]">
+                <div className={`flex flex-col max-w-[70%] md:max-w-[50%] lg:max-w-[60%] ${isSidebarOpen ? "block" : "hidden"} md:block `}>
                     {/* Name visible on medium screens and larger */}
-                    <p className="text-white text-sm hidden md:block truncate">
+                    <p className="text-white text-sm  md:block truncate">
                         {firstName} {lastName}
                     </p>
 
@@ -61,7 +72,7 @@ const ProfileInfo = () => {
                 </div>
             </div>
 
-            <div className="flex gap-4 w-full max-w-[30vw] justify-center min-w-0">
+            <div className={`flex gap-4 w-full max-w-[30vw] justify-center min-w-0 ${isSidebarOpen ? "block" : isMobile? "hidden" : "" }`}>
                 {/* Edit Profile Icon */}
                 <TooltipProvider>
                     <Tooltip>

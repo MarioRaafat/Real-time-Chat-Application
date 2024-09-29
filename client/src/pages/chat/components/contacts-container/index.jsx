@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ProfileInfo from "@/pages/chat/components/contacts-container/components/profile-info.jsx";
 import NewContact from "@/pages/chat/components/contacts-container/components/new-contact.jsx";
 import NewGroup from "@/pages/chat/components/contacts-container/components/new-group.jsx";
@@ -7,17 +7,27 @@ import Groups from "@/pages/chat/components/contacts-container/components/Groups
 import { useAppstore } from "@/store/index.js";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-const ContactsContainer = () => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const { chatData } = useAppstore();
+const ContactsContainer = ({isSidebarOpen, setIsSidebarOpen}) => {
+    
+    const { chatType } = useAppstore();
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const toggleSidebar = () => {
-        if (chatData) setIsSidebarOpen(!isSidebarOpen);
+        setIsSidebarOpen(!isSidebarOpen);
     };
 
     return (
         <div className={`relative bg-[#1b1c24] border-r-[1px] border-gray-300 transition-all duration-300 ease-in-out 
-            ${isSidebarOpen ? "w-[30vw]" : "w-[80px]"} md:w-[30vw] flex flex-col h-screen`}>
+            ${isSidebarOpen ? "w-[80vw] lg:w-[30vw]" : "w-[80px]"} md:w-[30vw] flex flex-col h-screen ${chatType &&isMobile ? "hidden" : ""} `}>
             {/* Menu icon for mobile */}
             <button onClick={toggleSidebar} className="block w-full pt-5 text-white z-10">
                 <Logo isSidebarOpen={isSidebarOpen} />
@@ -51,7 +61,7 @@ const ContactsContainer = () => {
                 </ScrollArea>
             </div>
 
-            <ProfileInfo />
+            <ProfileInfo isSidebarOpen={isSidebarOpen} />
         </div>
     );
 };

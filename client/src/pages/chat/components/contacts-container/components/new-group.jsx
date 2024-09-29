@@ -1,9 +1,3 @@
-import { useState, useRef, useEffect } from "react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { FaPlus } from "react-icons/fa";
-import { Input } from "@/components/ui/input.jsx";
 import Lottie from "react-lottie";
 import { animationDefault } from "@/lib/utils.js";
 import { apiClient } from "@/lib/api-client.js";
@@ -17,7 +11,6 @@ const NewGroup = () => {
     const [contacts, setContacts] = useState([]);
     const [selectedContacts, setSelectedContacts] = useState([]);
     const [isInputVisible, setIsInputVisible] = useState(false);
-    const [loadingSearch, setLoadingSearch] = useState(false);
     const [groupName, setGroupName] = useState('');
     const inputRef = useRef(null);
 
@@ -28,16 +21,16 @@ const NewGroup = () => {
     };
 
     useEffect(() => {
-        if (isInputVisible || loadingSearch) {
+        if (isInputVisible) {
             document.addEventListener("mousedown", handleClickOutside);
         } else {
             document.removeEventListener("mousedown", handleClickOutside);
         }
-    
+
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
-    }, [isInputVisible, loadingSearch]);
+    }, [isInputVisible]);
 
     const nameInput = () => {
         const handleKeyDown = (event) => {
@@ -75,20 +68,15 @@ const NewGroup = () => {
             return;
         }
 
-        if (value.length < 3) {
-            setLoadingSearch(true);
-        } else {
-            setLoadingSearch(false);
-            try {
-                const response = await apiClient.post(GET_CONTACTS_ROUTE, { searchTerm: value }, { withCredentials: true });
-                if (response.status === 200) {
-                    setContacts(response.data);
-                } else {
-                    console.log(response.data.message);
-                }
-            } catch (error) {
-                console.log(error);
+        try {
+            const response = await apiClient.post(GET_CONTACTS_ROUTE, { searchTerm: value }, { withCredentials: true });
+            if (response.status === 200) {
+                setContacts(response.data);
+            } else {
+                console.log(response.data.message);
             }
+        } catch (error) {
+            console.log(error);
         }
     };
 
@@ -104,17 +92,13 @@ const NewGroup = () => {
     }
 
     const handleSelectContact = (contact) => {
-        // Check if the contact with the same _id already exists
-        if (!selectedContacts.some(selected => selected._id === contact._id)) {
+        if (!selectedContacts.includes(contact)) {
             setSelectedContacts([...selectedContacts, contact]);
-        } else {
-            toast.error('Contact already added');
         }
     };
 
     const handleRemoveContact = (contact) => {
-        // Filter out the contact by _id
-        setSelectedContacts(selectedContacts.filter((c) => c._id !== contact._id));
+        setSelectedContacts(selectedContacts.filter((c) => c !== contact));
     };
 
     const handleCreateGroup = async () => {
@@ -156,7 +140,7 @@ const NewGroup = () => {
                         </Tooltip>
                     </TooltipProvider>
                 </DialogTrigger>
-                <DialogContent className="flex flex-col bg-gray-950 text-amber-50 border-purple-500 border-[1px] max-w-sm mx-auto h-[75vh]">
+                <DialogContent className="flex flex-col bg-gray-950 text-amber-50 border-purple-500 border-[1px] max-w-sm mx-auto h-[70vh]">
                     <DialogHeader className="flex items-center justify-between">
                         <DialogTitle className="font-bold text-xl text-amber-50">Create a Group</DialogTitle>
                     </DialogHeader>
@@ -166,25 +150,18 @@ const NewGroup = () => {
                         className="w-full p-2 sm:p-4 bg-slate-900 text-amber-50 border-none outline-none"
                         type="text"
                         onChange={(e) => handleSearch(e.target.value)}
-                        onKeyDown= {(event) => {
-                            if (event.key === 'Enter' && loadingSearch === true) {
-                                toast.error("Please type at least 3 characters to search");
-                            }
-                        }}
                     />
 
-                    <ScrollArea className="h-[90%] overflow-auto mt-2 max-h-[100px]">
-                        <div className="flex flex-wrap gap-2">
-                            {selectedContacts.map((contact, index) => (
-                                <div key={index} className="flex items-center w-fit bg-gray-700 rounded-full px-2 py-1">
-                                    <span>{contact.firstName} {contact.lastName}</span>
-                                    <button onClick={() => handleRemoveContact(contact)} className="ml-2 text-red-500">&times;</button>
-                                </div>
-                            ))}
-                        </div>
-                    </ScrollArea>
+                    <div className="flex flex-wrap mt-2">
+                        {selectedContacts.map((contact, index) => (
+                            <div key={index} className="flex items-center bg-gray-700 rounded-full px-2 py-1 mr-2 mb-2">
+                                <span>{contact.firstName} {contact.lastName}</span>
+                                <button onClick={() => handleRemoveContact(contact)} className="ml-2 text-red-500">&times;</button>
+                            </div>
+                        ))}
+                    </div>
 
-                    <ScrollArea className="h-[90%] overflow-auto mt-2 max-h-[200px]">
+                    <ScrollArea className="h-[90%] w-full overflow-auto">
                         {contacts.length > 0 ? (
                             contacts.map((contact, index) => 
                                 ( !selectedContacts.includes(contact) &&
